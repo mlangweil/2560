@@ -1,7 +1,6 @@
-#ifdef CODE_HPP
-#define CODE_HPP
 #include <vector>
-
+#ifndef CODE_HPP
+#define CODE_HPP
 class Code
 {
 public:
@@ -9,7 +8,7 @@ public:
     int codeRange;
     std::vector<int> code;
 
-    Code(int length, int range); // Corrected constructor declaration
+    Code(int length, int range);
     int checkCorrect(Code code);
     int checkIncorrect(Code code);
 
