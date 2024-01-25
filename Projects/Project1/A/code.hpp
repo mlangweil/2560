@@ -6,7 +6,7 @@ class Code
 public:
     int codeLength;
     int codeRange;
-    std::vector<int> code;
+    std::vector<int> guessList;
 
     Code(int length, int range);
     int checkCorrect(Code code);
