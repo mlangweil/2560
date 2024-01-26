@@ -1,0 +1,3 @@
+C:/Users/Max-L-PC.2/OneDrive/Desktop/2560/cmake-build-debug/CMakeFiles/2560.dir
+C:/Users/Max-L-PC.2/OneDrive/Desktop/2560/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/Max-L-PC.2/OneDrive/Desktop/2560/cmake-build-debug/CMakeFiles/rebuild_cache.dir
