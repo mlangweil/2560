@@ -21,7 +21,7 @@ public:
     void setNumberIncorrect(int incorrect);
 
     // Overloaded operator==
-    friend bool operator==(const Response& lhs, const Response& rhs);
+    friend bool operator==(const Response& r1, const Response& r2);
 
     // Overloaded operator<<
     friend std::ostream& operator<<(std::ostream& os, const Response& response);
