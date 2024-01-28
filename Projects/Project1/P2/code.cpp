@@ -75,7 +75,7 @@ int Code::checkIncorrect(Code code)
 }
 
 // sets the guess of a Code to the given vector
-void Code::setCode(vector<int> newGuess)
+void Code::setVector(vector<int> newGuess)
 {
     this->guess = newGuess;
 }
@@ -90,3 +90,12 @@ void Code::printCode()
     }
     cout << endl;
 }
+
+int Code::getCodeLength() {
+    return this->codeLength;
+}
+
+int Code::getCodeRange() {
+    return this->codeRange;
+}
+

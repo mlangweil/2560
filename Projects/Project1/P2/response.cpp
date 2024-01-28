@@ -1,12 +1,18 @@
 #include "response.h"
 using namespace std;
 
-bool operator==(const Response &r1, const Response &r2)
+Response::Response(int correct, int incorrect)
 {
-    return (r1.numberCorrect == r2.numberCorrect) && (r1.numberIncorrect == r2.numberIncorrect);
+    this->numberCorrect = correct;
+    this->numberIncorrect = incorrect;
 }
 
-std::ostream &operator<<(std::ostream &os, const Response &response)
+bool operator==(Response &r1, Response &r2)
+{
+    return (r1.getNumberCorrect() == r2.getNumberCorrect());
+}
+
+std::ostream &operator<<(std::ostream &os, Response &response)
 {
     os << "(" << response.getNumberCorrect() << ", " << response.getNumberIncorrect() << ")" << endl;
     return os;

@@ -13,18 +13,14 @@ public:
     Response(int correct = 0, int incorrect = 0);
 
     // Getter functions
-    int getNumberCorrect() const;
-    int getNumberIncorrect() const;
-
-    // Setter functions
-    void setNumberCorrect(int correct);
-    void setNumberIncorrect(int incorrect);
+    int getNumberCorrect();
+    int getNumberIncorrect() ;
 
     // Overloaded operator==
-    friend bool operator==(const Response& r1, const Response& r2);
+    friend bool operator==(Response& r1, Response& r2);
 
     // Overloaded operator<<
-    friend std::ostream& operator<<(std::ostream& os, const Response& response);
+    friend std::ostream& operator<<(std::ostream& os,  Response& response);
 };
 
 #endif // RESPONSE_H
