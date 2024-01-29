@@ -17,3 +17,11 @@ std::ostream &operator<<(std::ostream &os, Response &response)
     os << "(" << response.getNumberCorrect() << ", " << response.getNumberIncorrect() << ")" << endl;
     return os;
 }
+
+int Response::getNumberCorrect() {
+    return numberCorrect;
+}
+
+int Response::getNumberIncorrect() {
+    return numberIncorrect;
+}

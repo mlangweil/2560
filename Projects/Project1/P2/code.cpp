@@ -11,6 +11,8 @@ Code::Code(int length, int range)
     this->codeRange = range;
 }
 
+Code::Code(){}
+
 void Code::initializeCode()
 {
     srand((unsigned)time(NULL));

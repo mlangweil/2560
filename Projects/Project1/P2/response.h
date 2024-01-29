@@ -14,7 +14,7 @@ public:
 
     // Getter functions
     int getNumberCorrect();
-    int getNumberIncorrect() ;
+    int getNumberIncorrect();
 
     // Overloaded operator==
     friend bool operator==(Response& r1, Response& r2);

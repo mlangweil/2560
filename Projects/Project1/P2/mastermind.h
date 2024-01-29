@@ -8,9 +8,7 @@
 class Mastermind
 {
 private:
-    Code code;
-    int codeLength;
-    int codeRange;
+    Code secretCode;
 
 public:
     Mastermind();
@@ -21,4 +19,4 @@ public:
     void playGame();
 };
 
-#endif // RESPONSE_H
+#endif 

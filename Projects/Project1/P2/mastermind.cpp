@@ -2,19 +2,19 @@
 
 Mastermind::Mastermind()
 {
-    Code newCode(5, 10);
-    this->code = newCode;
+    Code secretCode(5, 10);
+    this->secretCode = secretCode;
 }
 Mastermind::Mastermind(int length, int range)
 {
     Code newCode(length, range);
-    this->code = newCode;
+    this->secretCode = newCode;
 }
 
 Code Mastermind::humanGuess()
 {
     vector<int> guessVector;
-    Code guessCode(code.getCodeLength(), code.getCodeRange());
+    Code guessCode(secretCode.getCodeLength(), secretCode.getCodeRange());
     for (int i = 0; i < guessCode.getCodeLength(); i++)
     {
         int val = 0;
@@ -29,19 +29,18 @@ Code Mastermind::humanGuess()
 
 Response Mastermind::getResponse(Code guessCode)
 {
-    Response guessResponse(this->code.checkCorrect(guessCode), this->code.checkIncorrect(guessCode));
+    Response guessResponse(this->secretCode.checkCorrect(guessCode), this->secretCode.checkIncorrect(guessCode));
     return guessResponse;
 }
 
 bool Mastermind::isSolved(Response guessResponse)
 {
-    Response correctResponse(this->code.checkCorrect(this->code), this->code.checkIncorrect(this->code));
+    Response correctResponse(this->secretCode.checkCorrect(this->secretCode), this->secretCode.checkIncorrect(this->secretCode));
     return correctResponse == guessResponse;
 }
 
 void Mastermind::playGame()
 {
-    Code secretCode(this->codeLength, this->codeRange);
     secretCode.initializeCode();
     int numTries = 10;
     for (int i = 1; i <= numTries; i++)
