@@ -50,11 +50,13 @@ void Mastermind::playGame()
         cout << "Input guess number " << i << ":" << endl;
         guessCode = this->humanGuess();
         guessResponse = this->getResponse(guessCode);
+        cout << guessResponse << endl;
 
         if (this->isSolved(guessResponse))
         {
             cout << "Congrats! You guessed the code!" << endl;
             secretCode.printCode();
+            break;
         }
         else if (i == numTries)
         {
