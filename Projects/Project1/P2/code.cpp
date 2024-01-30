@@ -5,13 +5,15 @@
 #include <set>
 using namespace std;
 
+// Overload constructor
 Code::Code(int length, int range)
 {
     this->codeLength = length;
     this->codeRange = range;
 }
 
-Code::Code(){}
+// default constructor
+Code::Code() {}
 
 void Code::initializeCode()
 {
@@ -30,6 +32,7 @@ void Code::initializeCode()
     }
 }
 
+// Returns an integer if index and value are the same
 int Code::checkCorrect(Code code)
 {
     int correct = 0;
@@ -93,11 +96,14 @@ void Code::printCode()
     cout << endl;
 }
 
-int Code::getCodeLength() {
+// Getter for codeLength
+int Code::getCodeLength()
+{
     return this->codeLength;
 }
 
-int Code::getCodeRange() {
+// Getter for codeRange
+int Code::getCodeRange()
+{
     return this->codeRange;
 }
-
