@@ -16,19 +16,22 @@ Mastermind::Mastermind(int length, int range)
     this->secretCode = newCode;
 }
 
-// Function to get a human guess
+// Allows user to make guesses of the secret code
 Code Mastermind::humanGuess()
 {
-    vector<int> guessVector;
+    std::vector<int> guessVector;
+
     // Create a guess code with the same length and range as the secret code
     Code guessCode(secretCode.getCodeLength(), secretCode.getCodeRange());
+
     for (int i = 0; i < guessCode.getCodeLength(); i++)
     {
         int val = 0;
-        cout << "Enter element " << i + 1 << ":";
-        cin >> val;
+        std::cout << "Enter element " << i + 1 << ": ";
+        errorHandle(val);
         guessVector.push_back(val);
     }
+
     guessCode.setVector(guessVector);
     return guessCode;
 }
@@ -75,6 +78,24 @@ void Mastermind::playGame()
         {
             cout << "You failed!" << endl;
             secretCode.printCode();
+        }
+    }
+}
+
+// error handling for non numbers
+void errorHandle(int &num)
+{
+    while (true)
+    {
+        if (std::cin >> num)
+        {
+            break;
+        }
+        else
+        {
+            std::cin.clear();  // Clear error flags
+            std::cin.ignore(); // Discard invalid input
+            std::cerr << "Invalid input. Please enter a valid number." << std::endl;
         }
     }
 }

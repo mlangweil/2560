@@ -19,4 +19,5 @@ public:
     void playGame();
 };
 
+void errorHandle(int &num);
 #endif
