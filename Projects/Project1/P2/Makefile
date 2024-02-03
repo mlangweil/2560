@@ -1,24 +1,21 @@
-# Makefile
+.PHONY: all clean
 
-# Compiler and compiler flags
-CXX = g++
+CC = g++
 CXXFLAGS = -std=c++11 -Wall
+LINKERFLAG = -lm
 
-# Source files and object files
-SRCS = code.cpp response.cpp mastermind.cpp main.cpp
-OBJS = $(SRCS:.cpp=.o)
+SRCS := code.cpp response.cpp mastermind.cpp main.cpp
+OBJS := $(SRCS:.cpp=.o)
+BINS := main
 
-# Target executable
-TARGET = main
+all: $(BINS)
 
-# Rule to build the executable
-$(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJS)
+main: $(OBJS)
+	$(CC) $(CXXFLAGS) $^ -o $@ $(LINKERFLAG)
 
-# Rule to build object files
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	@echo "Creating object.."
+	$(CC) $(CXXFLAGS) -c $< -o $@
 
-# Rule to clean generated files
 clean:
-	rm -f $(OBJS) $(TARGET)
+	del /Q $(BINS) $(OBJS)
