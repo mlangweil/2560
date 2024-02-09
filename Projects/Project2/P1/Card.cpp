@@ -6,6 +6,8 @@ Card::Card(int val, string s)
     this->suit = s;
 }
 
+
+
 int Card::getValue() const
 {
     return this->value;
@@ -26,52 +28,33 @@ void Card::setValue(int val)
     this->value = val;
 }
 
-ostream &Card::operator<<(ostream &out)
+ostream &operator<<(ostream &out, const Card &card)
 {
-    if (this->value > 10)
+    if (card.getValue() > 10)
     {
         string name;
-        if (this->value == 11)
+        if (card.getValue() == 11)
         {
             name = "Jack";
         }
-        else if (this->value == 12)
+        else if (card.getValue() == 12)
         {
             name = "Queen";
         }
-        else if (this->value == 13)
+        else if (card.getValue() == 13)
         {
             name = "King";
         }
-        else if (this->value == 14)
+        else if (card.getValue() == 14)
         {
             name = "Ace";
         }
-        out << name << " of " << this->suit << endl;
+        out << name << " of " << card.getSuit()<<"'s" << endl;
     }
     else
     {
-        out << this->value << " of " << this->suit << endl;
+        out << card.getValue() << " of " << card.getSuit()<<"'s" << endl;
     }
     return out;
 }
 
-Spade::Spade(int val)
-{
-    Card(val, "Spade");
-}
-
-Club::Club(int val)
-{
-    Card(val, "Club");
-}
-
-Diamond::Diamond(int val)
-{
-    Card(val, "Diamond");
-}
-
-Heart::Heart(int val)
-{
-    Card(val, "Heart");
-}

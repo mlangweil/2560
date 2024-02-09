@@ -10,9 +10,13 @@ class Deck
 public:
     Node *front;
     Deck();
+    ~Deck();
     void orderDeck();
-    ostream &operator<<(ostream &out);
+    void shuffle();
+    friend ostream &operator<<(ostream &out, const Deck &deck);
     int size() const;
+    Node *getFront() const;
+    
 };
 
 #endif
