@@ -53,6 +53,7 @@ ostream &Card::operator<<(ostream &out)
     {
         out << this->value << " of " << this->suit << endl;
     }
+    return out;
 }
 
 Spade::Spade(int val)

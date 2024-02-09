@@ -38,7 +38,17 @@ void Deck::orderDeck()
         currNode = node4;
     }
 }
-
+int Deck::size() const
+{
+    Node *currNode = front;
+    int i = 0;
+    while (currNode->next != nullptr)
+    {
+        currNode = currNode->next;
+        i++;
+    }
+}
 ostream &Deck::operator<<(ostream &out)
 {
+    
 }

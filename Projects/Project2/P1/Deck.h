@@ -1,4 +1,4 @@
-#include "Node.h"
+#include "Node.cpp"
 #include <iostream>
 using namespace std;
 
@@ -7,10 +7,12 @@ using namespace std;
 
 class Deck
 {
+public:
     Node *front;
     Deck();
     void orderDeck();
     ostream &operator<<(ostream &out);
+    int size() const;
 };
 
-#endif DECK_H
+#endif
