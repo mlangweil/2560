@@ -7,15 +7,13 @@
 using namespace std;
 
 // Function to read words from a file and store them in a vector
-vector<string> Dictionary::readWordsFromFile(const string &filename)
+void Dictionary::readWordsFromFile(const string &filename)
 {
-    vector<string> words;    // Vector to store words
     ifstream file(filename); // Open the file
 
     if (!file.is_open())
     {
         cerr << "Failed to open the file: " << filename << std::endl;
-        return words; // Return an empty vector
     }
 
     string word;
@@ -26,7 +24,6 @@ vector<string> Dictionary::readWordsFromFile(const string &filename)
     }
 
     file.close(); // Close the file
-    return words; // Return the vector of words
 }
 
 void Dictionary::print()
@@ -37,25 +34,21 @@ void Dictionary::print()
     }
 }
 
-void Dictionary::selectionSort(std::vector<int> &arr)
+void Dictionary::selectionSort()
 {
-    int n = arr.size();
-    for (int i = 0; i < n - 1; ++i)
-    {
-        int minIndex = i;
-        for (int j = i + 1; j < n; ++j)
-        {
-            if (arr[j] < arr[minIndex])
-            {
-                minIndex = j;
+    int n = words.size();
+        for (int i = 0; i < n - 1; ++i) {
+            int minIndex = i;
+            for (int j = i + 1; j < n; ++j) {
+                if (words[j] < words[minIndex]) {
+                    minIndex = j;
+                }
+            }
+            if (minIndex != i) {
+                swap(words[i], words[minIndex]);
             }
         }
-        if (minIndex != i)
-        {
-            std::swap(arr[i], arr[minIndex]);
-        }
     }
-}
 
 bool Dictionary::binarySearch(string &word)
 {
@@ -78,4 +71,8 @@ bool Dictionary::binarySearch(string &word)
         }
     }
     return false; // Word not found
+}
+
+vector<string> Dictionary::getWords(){
+    return words;
 }

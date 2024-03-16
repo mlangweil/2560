@@ -11,8 +11,9 @@ class Dictionary
 public:
     vector<string> words;
     void print();
-    vector<string> readWordsFromFile(const string &filename);
-    void selectionSort(vector<int>& arr);
+    void readWordsFromFile(const string &filename);
+    void selectionSort();
     bool binarySearch(string& word);
+    vector<string> getWords();
 };
 #endif
