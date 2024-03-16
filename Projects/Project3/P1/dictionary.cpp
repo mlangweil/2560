@@ -1,13 +1,13 @@
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
 #include "dictionary.h"
+#include <fstream>
 
 using namespace std;
 
 // Function to read words from a file and store them in a vector
-vector<string> readWordsFromFile(const string &filename)
+vector<string> Dictionary::readWordsFromFile(const string &filename)
 {
     vector<string> words;    // Vector to store words
     ifstream file(filename); // Open the file

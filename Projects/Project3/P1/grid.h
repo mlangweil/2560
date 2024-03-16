@@ -6,5 +6,6 @@ using namespace std;
 class Grid {
 public:
 vector<vector<int>> matrix;
+vector<vector<string>> readMatrixFromFile(const string& fileName);
 };
 #endif
