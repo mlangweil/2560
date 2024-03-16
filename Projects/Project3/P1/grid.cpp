@@ -40,8 +40,9 @@ vector<vector<string>> Grid::getMatrix() {
 
 void findMatches(Dictionary &dict, Grid &grid)
 {
-    vector<string> words = dict.getWords();
     dict.selectionSort();
+    vector<string> words = dict.getWords();
+
 
     int numRows = grid.getMatrix().size();
     int numCols = grid.getMatrix()[0].size();

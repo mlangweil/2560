@@ -37,18 +37,22 @@ void Dictionary::print()
 void Dictionary::selectionSort()
 {
     int n = words.size();
-        for (int i = 0; i < n - 1; ++i) {
-            int minIndex = i;
-            for (int j = i + 1; j < n; ++j) {
-                if (words[j] < words[minIndex]) {
-                    minIndex = j;
-                }
-            }
-            if (minIndex != i) {
-                swap(words[i], words[minIndex]);
+    for (int i = 0; i < n - 1; ++i)
+    {
+        int minIndex = i;
+        for (int j = i + 1; j < n; ++j)
+        {
+            if (words[j] < words[minIndex])
+            {
+                minIndex = j;
             }
         }
+        if (minIndex != i)
+        {
+            swap(words[i], words[minIndex]);
+        }
     }
+}
 
 bool Dictionary::binarySearch(string &word)
 {
@@ -73,6 +77,7 @@ bool Dictionary::binarySearch(string &word)
     return false; // Word not found
 }
 
-vector<string> Dictionary::getWords(){
+vector<string> Dictionary::getWords()
+{
     return words;
 }
