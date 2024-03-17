@@ -14,7 +14,6 @@ private:
     int parent(int i);
     int left(int i);
     int right(int i);
-
     void maxHeapify(int i, int heapSize);
     void buildMaxHeap();
 

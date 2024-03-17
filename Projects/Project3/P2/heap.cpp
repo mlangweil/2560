@@ -69,19 +69,15 @@ template <typename T>
 void Heap<T>::heapSort(vector<string> &words)
 {
     // Create a heap (max heap)
-    vector<string> heap = words;
-
+    heap = words;
     // Build max heap
-    for (int i = heap.size() / 2 - 1; i >= 0; --i)
-    {
-        maxHeapify(heap, i, heap.size());
-    }
+    buildMaxHeap();
 
     // Perform heap sort
     for (int i = heap.size() - 1; i > 0; --i)
     {
         swap(heap[0], heap[i]);
-        maxHeapify(heap, 0, i);
+        maxHeapify(0, i);
     }
 
     // Copy the sorted words back to the dictionary
@@ -93,9 +89,11 @@ void search(int algo)
     string name;
     cout << "Provide the name of the grid file" << endl;
     cin >> name;
-    
+
     Grid grid;
     Dictionary dict;
+    dict.readWordsFromFile("dictionary-2");
+    grid.readMatrixFromFile(name);
     if (algo == 1)
     {
         dict.selectionSort();
@@ -115,9 +113,7 @@ void search(int algo)
     {
         cout << "Invalid selection" << endl;
     }
-    //grid.readMatrixFromFile(name);
-    dict.readWordsFromFile("dictionary-2");
-    grid.readMatrixFromFile(name);
-    dict.print();
-    //findMatches(dict, grid);
+    
+    //dict.print();
+    findMatches(dict, grid);
 }
