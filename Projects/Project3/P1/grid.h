@@ -8,8 +8,9 @@ using namespace std;
 class Grid {
 public:
 vector<vector<string>> matrix;
-vector<vector<string>> readMatrixFromFile(const string& fileName);
+void readMatrixFromFile(const string& fileName);
 vector<vector<string>> getMatrix();
+void print();
 };
 
 void findMatches(Dictionary &dict, Grid &grid);

@@ -6,43 +6,50 @@
 
 using namespace std;
 
-vector<vector<string>> Grid::readMatrixFromFile(const string &fileName)
+void Grid::readMatrixFromFile(const string &fileName)
 {
-    vector<vector<string>> matrix;
+
     ifstream file(fileName);
     if (!file.is_open())
     {
         cerr << "Error: Unable to open file " << fileName << endl;
-        return matrix;
     }
 
     int rows, cols;
     file >> rows >> cols;
     file.ignore(); // Ignore the newline character after reading cols
 
+    matrix.resize(rows);
     for (int i = 0; i < rows; ++i)
     {
-        vector<string> row;
+        matrix[i].resize(cols);
         for (int j = 0; j < cols; ++j)
         {
-            string element;
-            file >> element;
-            row.push_back(element);
+            file >> matrix[i][j];
         }
-        matrix.push_back(row);
     }
+}
+
+vector<vector<string>> Grid::getMatrix()
+{
     return matrix;
 }
 
-vector<vector<string>> Grid::getMatrix() {
-    return matrix;
+// Function to print the matrix
+void Grid::print()
+{
+    for (const auto &row : matrix)
+    {
+        for (const auto &element : row)
+        {
+            cout << element << " ";
+        }
+        cout << endl;
+    }
 }
-
 void findMatches(Dictionary &dict, Grid &grid)
 {
-    dict.selectionSort();
     vector<string> words = dict.getWords();
-
 
     int numRows = grid.getMatrix().size();
     int numCols = grid.getMatrix()[0].size();
@@ -51,17 +58,23 @@ void findMatches(Dictionary &dict, Grid &grid)
     int directions[4][2] = {{0, 1}, {1, 0}, {1, 1}, {1, -1}};
 
     // Iterate over each cell in the grid
-    for (int row = 0; row < numRows; ++row) {
-        for (int col = 0; col < numCols; ++col) {
+    for (int row = 0; row < numRows; ++row)
+    {
+        for (int col = 0; col < numCols; ++col)
+        {
             // Check each direction
-            for (auto& dir : directions) {
+            for (auto &dir : directions)
+            {
                 int dRow = dir[0];
                 int dCol = dir[1];
                 string currentWord = "";
                 int r = row, c = col;
-                while (r >= 0 && r < numRows && c >= 0 && c < numCols) {
-                    currentWord += grid.getMatrix()[r][c];
-                    if (dict.binarySearch(currentWord)) {
+                while (r >= 0 && r < numRows && c >= 0 && c < numCols)
+                {
+                    vector<string> mat = grid.getMatrix()[r];
+                    currentWord += mat[c];
+                    if (dict.binarySearch(currentWord))
+                    {
                         cout << currentWord << endl;
                     }
                     r += dRow;

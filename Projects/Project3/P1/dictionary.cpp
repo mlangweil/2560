@@ -20,12 +20,17 @@ void Dictionary::readWordsFromFile(const string &filename)
     // Read words from the file until the end
     while (file >> word)
     {
+        word[0] = tolower(word[0]);
         words.push_back(word); // Store each word in the vector
     }
 
     file.close(); // Close the file
 }
 
+void Dictionary::setWords(vector<string> vec)
+{
+    this->words = vec;
+}
 void Dictionary::print()
 {
     for (int i = 0; i < words.size(); i++)
@@ -42,6 +47,7 @@ void Dictionary::selectionSort()
         int minIndex = i;
         for (int j = i + 1; j < n; ++j)
         {
+            // Compare strings while ignoring case of the first letter
             if (words[j] < words[minIndex])
             {
                 minIndex = j;
@@ -54,7 +60,7 @@ void Dictionary::selectionSort()
     }
 }
 
-bool Dictionary::binarySearch(string &word)
+bool Dictionary::binarySearch(string word)
 {
     int low = 0;
     int high = words.size() - 1;
@@ -81,3 +87,4 @@ vector<string> Dictionary::getWords()
 {
     return words;
 }
+
