@@ -91,19 +91,19 @@ vector<string> Dictionary::getWords()
 int Dictionary::partition(vector<string> &arr, int low, int high)
 {
     string pivot = arr[high];
-    int i = low - 1;
+    int i = low;
 
     for (int j = low; j < high; ++j)
     {
         // Compare strings while ignoring case of the first letter
-        if (tolower(arr[j][0]) <= tolower(pivot[0]))
+        if ((arr[j][0]) < (pivot[0]) || ((arr[j][0]) == (pivot[0]) && arr[j] < pivot))
         {
-            ++i;
             swap(arr[i], arr[j]);
+            ++i;
         }
     }
-    swap(arr[i + 1], arr[high]);
-    return i + 1;
+    swap(arr[i], arr[high]);
+    return i;
 }
 
 // QuickSort function for vector<string>
@@ -111,7 +111,7 @@ void Dictionary::quickSortHelper(vector<string> &arr, int low, int high)
 {
     if (low < high)
     {
-        int pivotIndex = partition(words, low, high);
+        int pivotIndex = partition(arr, low, high);
         quickSortHelper(arr, low, pivotIndex - 1);
         quickSortHelper(arr, pivotIndex + 1, high);
     }

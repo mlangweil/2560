@@ -100,20 +100,21 @@ void search(int algo)
     }
     else if (algo == 2)
     {
-        dict.quickSort();
-    }
-    else if (algo == 3)
-    {
         Heap<string> heap;
         vector<string> vec = dict.getWords();
         heap.heapSort(vec);
         dict.setWords(vec);
     }
+
+    else if (algo == 3)
+    {
+        dict.quickSort();
+    }
     else
     {
         cout << "Invalid selection" << endl;
     }
-    
-    //dict.print();
+
+    // dict.print();
     findMatches(dict, grid);
 }
