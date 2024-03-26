@@ -27,8 +27,11 @@ public:
     bool isBlank(int, int);
     ValueType getCell(int, int);
     void setCell(int, int, int);
-    void updateConflictVectors(int n, int m);
+    bool updateConflictVectors(int n, int i, int j);
     void initializeConflictVectors();
+    bool addValueToCell(int n, int i, int j);
+    bool isSolved();
+    void clearCell(int n, int i, int j);
 
 private:
     // The following matrices go from 1 to BoardSize in each
@@ -53,26 +56,99 @@ void board::clear()
 }
 void board::initializeConflictVectors()
 {
-    for (int i = 0; i < BoardSize * 3; i++)
+    // rows
+    conf.resize(BoardSize * 3, BoardSize);
+    for (int i = 0; i < BoardSize; i++)
     {
-        vector<int> row;
         for (int j = 0; j < BoardSize; j++)
         {
-            row.push_back(false);
+            if (value[i][j] == j + 1)
+            {
+                conf[i][j] = true;
+            }
+            else
+            {
+                conf[i][j] = false;
+            }
         }
-        conf[i] = row;
     }
-    for (int i = 0; i < BoardSize * 3; i++)
+
+    // cols
+    for (int i = 0; i < BoardSize; i++)
     {
-        vector<int> row;
         for (int j = 0; j < BoardSize; j++)
         {
-            if (value[i][j] == j+1) {
+            if (value[j][i] == j + 1)
+            {
+                conf[j + BoardSize][i] = true;
+            }
+            else
+            {
+                conf[j + BoardSize][i] = false;
+            }
+        }
+    }
 
+    for (int i = 0; i < BoardSize; i += 3)
+    { // Loop through mini-squares vertically
+        for (int j = 0; j < BoardSize; j += 3)
+        { // Loop through mini-squares horizontally
+            for (int di = 0; di < 3; di++)
+            { // Loop through rows within the mini-square
+                for (int dj = 0; dj < 3; dj++)
+                {                                    // Loop through columns within the mini-square
+                    int num = value[i + di][j + dj]; // Get the number at the current cell
+                    if (num >= 1 && num <= BoardSize)
+                    { // Check if the number is valid
+                        // Set the corresponding cell in conf to true based on the number
+                        conf[j + (BoardSize * 2)][i + num - 1] = true;
+                    }
+                }
             }
         }
     }
 }
+
+bool board::updateConflictVectors(int n, int i, int j)
+{
+    if (conf[BoardSize + j][n + 1] || conf[i][n + 1] || conf[(BoardSize * 2) + (i + j) % 3][n + 1])
+    {
+        return false;
+    }
+    conf[i][n + 1] = true;
+    conf[BoardSize + j][n + 1] = true;
+    conf[(BoardSize * 2) + (i + j) % 3][n + 1] = true;
+    return true;
+}
+
+bool board::addValueToCell(int n, int i, int j)
+{
+    if (updateConflictVectors(n, i, j))
+    {
+        value[i][j] = n;
+        return true;
+    }
+    return false;
+}
+
+void board::clearCell(int n, int i, int j) {
+    value[i][j] = Blank;
+     conf[i][n + 1] = true;
+    conf[BoardSize + j][n + 1] = true;
+    conf[(BoardSize * 2) + (i + j) % 3][n + 1] = true;
+}
+
+bool board::isSolved() {
+    for (int i =0; i < BoardSize *3; i++) {
+        for (int j =0; j < BoardSize;j++) {
+            if (!conf[i][j]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 void board::initialize(ifstream &fin)
 {
     char ch;
@@ -83,8 +159,8 @@ void board::initialize(ifstream &fin)
             fin >> ch;
             if (ch != '.')
                 setCell(i, j, ch - '0'); // Convert char to int
-            else 
-                setCell(i, j, 0);
+            else
+                setCell(i, j, Blank);
         }
 }
 
@@ -152,25 +228,7 @@ void board::print()
     cout << endl;
 }
 
-void board::updateConflictVectors(int n, int m)
-{
-    for (int i = 0; i < BoardSize; i++)
-    {
-        vector<bool> row;
-        vector<int> vec = value[i];
-        for (int j = 0; j < BoardSize; j++)
-        {
-            if (true == vec[j])
-            {
-                row.push_back(true);
-            }
-            else
-            {
-                row.push_back(false);
-            }
-        }
-    }
-}
+
 
 int main()
 {
