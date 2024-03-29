@@ -3,6 +3,7 @@
 #include <vector>
 #include "d_matrix.h"
 #include "d_except.h"
+#include <cmath>
 
 using namespace std;
 
@@ -32,13 +33,19 @@ public:
     bool addValueToCell(int n, int i, int j);
     bool isSolved();
     void clearCell(int n, int i, int j);
+    void printConflicts();
 
 private:
     // The following matrices go from 1 to BoardSize in each
     // dimension, i.e., they are each (BoardSize+1) * (BoardSize+1)
     matrix<ValueType> value;
-    matrix<ValueType> conf;
+    matrix<bool> conf;
 };
+
+int squareNumber(int i, int j)
+{
+    return SquareSize * ((i - 1) / SquareSize) + (j - 1) / SquareSize + 1;
+}
 
 board::board(int sqSize)
     : value(BoardSize + 1, BoardSize + 1)
@@ -54,56 +61,28 @@ void board::clear()
             value[i][j] = Blank;
         }
 }
+
 void board::initializeConflictVectors()
 {
-    // rows
-    conf.resize(BoardSize * 3, BoardSize);
-    for (int i = 0; i < BoardSize; i++)
-    {
-        for (int j = 0; j < BoardSize; j++)
-        {
-            if (value[i][j] == j + 1)
-            {
-                conf[i][j] = true;
-            }
-            else
-            {
-                conf[i][j] = false;
-            }
-        }
-    }
+    // Resize the conf matrix to the appropriate size
+    conf.resize(BoardSize, BoardSize * 3);
 
-    // cols
-    for (int i = 0; i < BoardSize; i++)
+    // Initialize conf matrix based on the values in the grid
+    for (int i = 1; i <= BoardSize; i++) // LeftRight
     {
-        for (int j = 0; j < BoardSize; j++)
+        for (int j = 1; j <= BoardSize; j++) // UpDown
         {
-            if (value[j][i] == j + 1)
-            {
-                conf[j + BoardSize][i] = true;
-            }
-            else
-            {
-                conf[j + BoardSize][i] = false;
-            }
-        }
-    }
 
-    for (int i = 0; i < BoardSize; i += 3)
-    { // Loop through mini-squares vertically
-        for (int j = 0; j < BoardSize; j += 3)
-        { // Loop through mini-squares horizontally
-            for (int di = 0; di < 3; di++)
-            { // Loop through rows within the mini-square
-                for (int dj = 0; dj < 3; dj++)
-                {                                    // Loop through columns within the mini-square
-                    int num = value[i + di][j + dj]; // Get the number at the current cell
-                    if (num >= 1 && num <= BoardSize)
-                    { // Check if the number is valid
-                        // Set the corresponding cell in conf to true based on the number
-                        conf[j + (BoardSize * 2)][i + num - 1] = true;
-                    }
-                }
+            int num = value[j][i];
+            if (num != Blank)
+            {
+                // Set the corresponding cell in conf to true
+                conf[num - 1][j - 1] = true;             // Rows
+                conf[num - 1][BoardSize + j - 1] = true; // Columns
+
+                conf[num - 1][(BoardSize * 2) + squareNumber(j,i)-1] = true; // Mini-Squares Z style
+
+              
             }
         }
     }
@@ -111,13 +90,13 @@ void board::initializeConflictVectors()
 
 bool board::updateConflictVectors(int n, int i, int j)
 {
-    if (conf[BoardSize + j][n + 1] || conf[i][n + 1] || conf[(BoardSize * 2) + (i + j) % 3][n + 1])
+    if (conf[BoardSize + j][getCell(i, j) + 1] || conf[i][getCell(i, j) + 1] || conf[(BoardSize * 2) + (i + j) % 3][getCell(i, j) + 1])
     {
         return false;
     }
-    conf[i][n + 1] = true;
-    conf[BoardSize + j][n + 1] = true;
-    conf[(BoardSize * 2) + (i + j) % 3][n + 1] = true;
+    conf[i][n] = true;
+    conf[BoardSize + j][n] = true;
+    conf[(BoardSize * 2) + (i + j) % 3][n] = true;
     return true;
 }
 
@@ -131,17 +110,22 @@ bool board::addValueToCell(int n, int i, int j)
     return false;
 }
 
-void board::clearCell(int n, int i, int j) {
+void board::clearCell(int n, int i, int j)
+{
     value[i][j] = Blank;
-     conf[i][n + 1] = true;
-    conf[BoardSize + j][n + 1] = true;
-    conf[(BoardSize * 2) + (i + j) % 3][n + 1] = true;
+    conf[i][getCell(i, j) + 1] = true;
+    conf[BoardSize + j][getCell(i, j) + 1] = true;
+    conf[(BoardSize * 2) + (i + j) % 3][getCell(i, j) + 1] = true;
 }
 
-bool board::isSolved() {
-    for (int i =0; i < BoardSize *3; i++) {
-        for (int j =0; j < BoardSize;j++) {
-            if (!conf[i][j]) {
+bool board::isSolved()
+{
+    for (int i = 0; i < BoardSize * 3; i++)
+    {
+        for (int j = 0; j < BoardSize; j++)
+        {
+            if (!conf[i][j])
+            {
                 return false;
             }
         }
@@ -162,11 +146,6 @@ void board::initialize(ifstream &fin)
             else
                 setCell(i, j, Blank);
         }
-}
-
-int squareNumber(int i, int j)
-{
-    return SquareSize * ((i - 1) / SquareSize) + (j - 1) / SquareSize + 1;
 }
 
 ostream &operator<<(ostream &ostr, vector<int> &v)
@@ -214,9 +193,10 @@ void board::print()
             if ((j - 1) % SquareSize == 0)
                 cout << "|";
             if (!isBlank(i, j))
-                cout << " " << getCell(i, j) << " ";
+                cout << " " << getCell(i, j);
             else
-                cout << " ";
+                cout << "-1";
+            cout << " ";
         }
         cout << "|";
         cout << endl;
@@ -228,7 +208,31 @@ void board::print()
     cout << endl;
 }
 
+void board::printConflicts()
+{
+    for (int j = 0; j < BoardSize * 3; j++)
+    {
+        if (j+BoardSize == BoardSize)
+        {
+            cout << "Rows" << endl;
+        }
+        else if (j+BoardSize == BoardSize * 2)
+        {
+            cout << "Columns" << endl;
+        }
+        else if (j+BoardSize == BoardSize * 3)
+        {
+            cout << "Squares" << endl;
+        }
 
+        cout << "[";
+        for (int i = 0; i < 9; i++)
+        {
+            cout << conf[i][j] << " ";
+        }
+        cout << "]" << endl;
+    }
+}
 
 int main()
 {
@@ -242,11 +246,13 @@ int main()
     }
     try
     {
-        board b1(SquareSize);
         while (fin && fin.peek() != 'Z')
         {
+            board b1(SquareSize);
             b1.initialize(fin);
+            b1.initializeConflictVectors();
             b1.print();
+            b1.printConflicts();
         }
     }
     catch (indexRangeError &ex)
@@ -255,4 +261,3 @@ int main()
         exit(1);
     }
 }
-
