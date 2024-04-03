@@ -1,10 +1,9 @@
 #include <iostream>
-#include <fstream>
-#include <vector>
+#include <limits.h>
 #include "d_matrix.h"
 #include "d_except.h"
-#include <cmath>
-
+#include <list>
+#include <fstream>
 using namespace std;
 
 typedef int ValueType;    // The type of the value in a cell
@@ -26,111 +25,65 @@ public:
     void initialize(ifstream &fin);
     void print();
     bool isBlank(int, int);
-    ValueType getCell(int, int);
-    void setCell(int, int, int);
-    bool updateConflictVectors(int n, int i, int j);
-    void initializeConflictVectors();
-    bool addValueToCell(int n, int i, int j);
-    bool isSolved();
-    void clearCell(int n, int i, int j);
-    void printConflicts();
+    ValueType getCell(int, int, matrix<ValueType> &);
+    void setCell(int i, int j, int val, matrix<ValueType> &confMatrix);
+    void initConf();
+    void printConf();
+    void printMatrix(matrix<ValueType> &);
+    void checkConflicts();
 
 private:
-    // The following matrices go from 1 to BoardSize in each
-    // dimension, i.e., they are each (BoardSize+1) * (BoardSize+1)
     matrix<ValueType> value;
-    matrix<bool> conf;
+    matrix<ValueType> confRow; // Conflicts matrix for rows
+    matrix<ValueType> confCol; // Conflicts matrix for columns
+    matrix<ValueType> confSq;  // Conflicts matrix for squares
 };
+
+board::board(int sqSize)
+    : value(BoardSize + 1, BoardSize + 1),
+      confRow(BoardSize + 1, BoardSize + 1),
+      confCol(BoardSize + 1, BoardSize + 1),
+      confSq(BoardSize + 1, BoardSize + 1)
+{
+    clear();
+}
 
 int squareNumber(int i, int j)
 {
     return SquareSize * ((i - 1) / SquareSize) + (j - 1) / SquareSize + 1;
 }
-
-board::board(int sqSize)
-    : value(BoardSize + 1, BoardSize + 1)
-{
-    clear();
-}
-
 void board::clear()
 {
     for (int i = 1; i <= BoardSize; i++)
+    {
         for (int j = 1; j <= BoardSize; j++)
         {
             value[i][j] = Blank;
+            confRow[i][j] = 0; // Initialize all conflict matrices to 0
+            confCol[i][j] = 0;
+            confSq[i][j] = 0;
         }
+    }
 }
 
-void board::initializeConflictVectors()
+void board::initConf()
 {
-    // Resize the conf matrix to the appropriate size
-    conf.resize(BoardSize, BoardSize * 3);
-
-    // Initialize conf matrix based on the values in the grid
-    for (int i = 1; i <= BoardSize; i++) // LeftRight
+    // Initialize all conflict matrices to 0
+    for (int i = 1; i <= BoardSize; i++)
     {
-        for (int j = 1; j <= BoardSize; j++) // UpDown
+        for (int j = 1; j <= BoardSize; j++)
         {
+            confRow[i][j] = 0;
+            confCol[i][j] = 0;
+            confSq[i][j] = 0;
 
-            int num = value[j][i];
-            if (num != Blank)
+            int num = getCell(i, j, value);
+            if (!isBlank(i, j))
             {
-                // Set the corresponding cell in conf to true
-                conf[num - 1][j - 1] = true;             // Rows
-                conf[num - 1][BoardSize + j - 1] = true; // Columns
-
-                conf[num - 1][(BoardSize * 2) + squareNumber(j,i)-1] = true; // Mini-Squares Z style
-
-              
+                checkConflicts();
             }
         }
     }
-}
-
-bool board::updateConflictVectors(int n, int i, int j)
-{
-    if (conf[BoardSize + j][getCell(i, j) + 1] || conf[i][getCell(i, j) + 1] || conf[(BoardSize * 2) + (i + j) % 3][getCell(i, j) + 1])
-    {
-        return false;
-    }
-    conf[i][n] = true;
-    conf[BoardSize + j][n] = true;
-    conf[(BoardSize * 2) + (i + j) % 3][n] = true;
-    return true;
-}
-
-bool board::addValueToCell(int n, int i, int j)
-{
-    if (updateConflictVectors(n, i, j))
-    {
-        value[i][j] = n;
-        return true;
-    }
-    return false;
-}
-
-void board::clearCell(int n, int i, int j)
-{
-    value[i][j] = Blank;
-    conf[i][getCell(i, j) + 1] = true;
-    conf[BoardSize + j][getCell(i, j) + 1] = true;
-    conf[(BoardSize * 2) + (i + j) % 3][getCell(i, j) + 1] = true;
-}
-
-bool board::isSolved()
-{
-    for (int i = 0; i < BoardSize * 3; i++)
-    {
-        for (int j = 0; j < BoardSize; j++)
-        {
-            if (!conf[i][j])
-            {
-                return false;
-            }
-        }
-    }
-    return true;
 }
 
 void board::initialize(ifstream &fin)
@@ -138,42 +91,85 @@ void board::initialize(ifstream &fin)
     char ch;
     clear();
     for (int i = 1; i <= BoardSize; i++)
+    {
         for (int j = 1; j <= BoardSize; j++)
         {
             fin >> ch;
+            // If the read char is not Blank
             if (ch != '.')
-                setCell(i, j, ch - '0'); // Convert char to int
-            else
-                setCell(i, j, Blank);
+                setCell(i, j, ch - '0', value); // Convert char to int
         }
+    }
 }
+
+void board::checkConflicts()
+{
+    // Initialize variables
+    int index = 0, square = 0;
+    for (int i = 1; i <= BoardSize; i++)
+    {
+        for (int j = 1; j <= BoardSize; j++)
+        {
+            if (i >= 1 && i <= BoardSize && j >= 1 && j <= BoardSize)
+            {
+                // Return the value in the cell
+                index = getCell(i, j, value);
+                // Return what square the current index is in
+                square = squareNumber(i, j);
+                // If the cell isn't blank, update the conflict vectors
+                if (index != Blank)
+                {
+                    setCell(i, index, true, confRow);
+                    setCell(j, index, true, confCol);
+                    setCell(square, index, true, confSq);
+                }
+            }
+            else
+            {
+                throw rangeError("bad value in GetCell");
+            }
+        }
+    }
+}
+
+
 
 ostream &operator<<(ostream &ostr, vector<int> &v)
 {
     for (int i = 0; i < v.size(); i++)
         ostr << v[i] << " ";
     cout << endl;
-    return ostr;
 }
 
-ValueType board::getCell(int i, int j)
+ValueType board::getCell(int i, int j, matrix<ValueType> &confMatrix)
 {
     if (i >= 1 && i <= BoardSize && j >= 1 && j <= BoardSize)
-        return value[i][j];
+    {
+        return confMatrix[i][j];
+    }
     else
+    {
         throw rangeError("bad value in getCell");
+    }
 }
 
-void board::setCell(int i, int j, int val)
+void board::setCell(int i, int j, int val, matrix<ValueType> &confMatrix)
 {
-    value[i][j] = val;
+    if (i >= 1 && i <= BoardSize && j >= 1 && j <= BoardSize)
+    {
+        confMatrix[i][j] = val;
+    }
+    else
+    {
+        throw rangeError("bad value in setCell");
+    }
 }
 
 bool board::isBlank(int i, int j)
 {
     if (i < 1 || i > BoardSize || j < 1 || j > BoardSize)
         throw rangeError("bad value in setCell");
-    return (getCell(i, j) == Blank);
+    return (getCell(i, j, value) == Blank);
 }
 
 void board::print()
@@ -193,11 +189,12 @@ void board::print()
             if ((j - 1) % SquareSize == 0)
                 cout << "|";
             if (!isBlank(i, j))
-                cout << " " << getCell(i, j);
+                cout << " " << getCell(i, j, value);
             else
-                cout << "-1";
+                cout << Blank;
             cout << " ";
         }
+
         cout << "|";
         cout << endl;
     }
@@ -208,27 +205,26 @@ void board::print()
     cout << endl;
 }
 
-void board::printConflicts()
+void board::printConf()
 {
-    for (int j = 0; j < BoardSize * 3; j++)
-    {
-        if (j+BoardSize == BoardSize)
-        {
-            cout << "Rows" << endl;
-        }
-        else if (j+BoardSize == BoardSize * 2)
-        {
-            cout << "Columns" << endl;
-        }
-        else if (j+BoardSize == BoardSize * 3)
-        {
-            cout << "Squares" << endl;
-        }
+    cout << "Rows:" << endl;
+    printMatrix(confRow);
 
+    cout << "Cols:" << endl;
+    printMatrix(confCol);
+
+    cout << "Squares:" << endl;
+    printMatrix(confSq);
+}
+
+void board::printMatrix(matrix<ValueType> &confMatrix)
+{
+    for (int i = 1; i <= BoardSize; i++)
+    {
         cout << "[";
-        for (int i = 0; i < 9; i++)
+        for (int j = 1; j <= BoardSize; j++)
         {
-            cout << conf[i][j] << " ";
+            cout << getCell(i, j, confMatrix) << " ";
         }
         cout << "]" << endl;
     }
@@ -246,13 +242,15 @@ int main()
     }
     try
     {
+        board b1(SquareSize);
+
         while (fin && fin.peek() != 'Z')
         {
-            board b1(SquareSize);
             b1.initialize(fin);
-            b1.initializeConflictVectors();
+            b1.initConf();
             b1.print();
-            b1.printConflicts();
+            b1.printConf();
+            b1.print();
         }
     }
     catch (indexRangeError &ex)
