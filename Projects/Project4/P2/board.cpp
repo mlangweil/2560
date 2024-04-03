@@ -61,6 +61,7 @@ int squareNumber(int i, int j)
 {
     return SquareSize * ((i - 1) / SquareSize) + (j - 1) / SquareSize + 1;
 }
+
 void board::clear()
 {
     for (int i = 1; i <= BoardSize; i++)
@@ -73,9 +74,9 @@ void board::clear()
             confSq[i][j] = 0;
         }
     }
-    currPasses = 0;
 }
 
+// initializes conflict vectors
 void board::initConf()
 {
     // Initialize all conflict matrices to 0
@@ -112,14 +113,20 @@ void board::initialize(ifstream &fin)
     }
 }
 
+// loops through each value in the matrix and updates the conflict vectors
 void board::checkConflicts()
 {
-    int index = 0, square = 0;
+
+    // Iterate through each cell in the board
     for (int i = 1; i <= BoardSize; i++)
     {
         for (int j = 1; j <= BoardSize; j++)
         {
-            updateCell(i, j, getCell(i, j, value));
+            int num = getCell(i, j, value);
+            if (!isBlank(i, j))
+            {
+                updateCell(i, j, num); // Update conflicts for the cell
+            }
         }
     }
 }
@@ -131,6 +138,7 @@ ostream &operator<<(ostream &ostr, vector<int> &v)
     cout << endl;
 }
 
+// receives the value of a cell given indexes and a matrix
 ValueType board::getCell(int i, int j, matrix<ValueType> &confMatrix)
 {
     if (i >= 1 && i <= BoardSize && j >= 1 && j <= BoardSize)
@@ -143,6 +151,7 @@ ValueType board::getCell(int i, int j, matrix<ValueType> &confMatrix)
     }
 }
 
+// sets the value of a cell given indexes and a matrix
 void board::setCell(int i, int j, int val, matrix<ValueType> &confMatrix)
 {
     if (i >= 1 && i <= BoardSize && j >= 1 && j <= BoardSize)
@@ -155,6 +164,7 @@ void board::setCell(int i, int j, int val, matrix<ValueType> &confMatrix)
     }
 }
 
+// adds a value to a cell and updates conflict vectors
 bool board::addValueToCell(int i, int j, int num)
 {
     if (getCell(i, j, value) == Blank)
@@ -163,34 +173,34 @@ bool board::addValueToCell(int i, int j, int num)
     }
 }
 
+// sets the value in the conflict vector to 0 and makes the cell blank
 void board::clearCell(int i, int j)
 {
     int num = getCell(i, j, value);
     int square = squareNumber(i, j);
 
-    setCell(i, num, 0, confRow);
-    setCell(j, num, 0, confCol);
-    setCell(square, num, 0, confSq);
+    if (!isBlank(i, j))
+    {
+        // Clear the conflict matrices for the cell
+        setCell(i, num, 0, confRow);
+        setCell(j, num, 0, confCol);
+        setCell(square, num, 0, confSq);
+    }
+
+    // Clear the cell value
     setCell(i, j, Blank, value);
 }
 
+// updates cell only if a given number appears in the indexes of value and that cell is blank
 void board::updateCell(int i, int j, int num)
 {
-    int square = 0;
-    if (i >= 1 && i <= BoardSize && j >= 1 && j <= BoardSize)
+    int square = squareNumber(i, j);
+    if (num != Blank && !getCell(i, num, confRow) && !getCell(j, num, confCol) && !getCell(square, num, confSq))
     {
-        square = squareNumber(i, j);
-        if (num != Blank && !getCell(i, num, confRow) && !getCell(j, num, confCol) && !getCell(square, num, confSq))
-        {
-            setCell(i, num, true, confRow);
-            setCell(j, num, true, confCol);
-            setCell(square, num, true, confSq);
-            setCell(i, j, num, value);
-        }
-    }
-    else
-    {
-        throw rangeError("bad value in GetCell");
+        // If the number doesn't conflict with row, column, or square
+        setCell(i, num, true, confRow); // Update conflict matrices
+        setCell(j, num, true, confCol);
+        setCell(square, num, true, confSq);
     }
 }
 
@@ -259,6 +269,7 @@ void board::printMatrix(matrix<ValueType> &confMatrix)
     }
 }
 
+// checks to see if any cell is blank AND if every value in the conflict is true
 bool board::isSolved()
 {
     int index = 0, square = 0;
@@ -266,22 +277,17 @@ bool board::isSolved()
     {
         for (int j = 1; j <= BoardSize; j++)
         {
-            if (i >= 1 && i <= BoardSize && j >= 1 && j <= BoardSize)
+            index = getCell(i, j, value);
+            if (index == Blank)
             {
-                index = getCell(i, j, value);
-                square = squareNumber(i, j);
-                if (index == Blank)
-                {
-                    return false;
-                }
-                if (!confRow[i][index] || !confCol[j][index] || !confSq[square][index])
-                {
-                    return false;
-                }
+                return false; // If any cell is blank, Sudoku is not solved
             }
-            else
+            square = squareNumber(i, j);
+
+            // Check if the number in the cell exists in its corresponding row, column, and square
+            if (!getCell(i, index, confRow) || !getCell(j, index, confCol) || !getCell(square, index, confSq))
             {
-                throw rangeError("bad value in GetCell");
+                return false;
             }
         }
     }
@@ -291,42 +297,51 @@ bool board::isSolved()
 bool board::solveHelper(int row, int col)
 {
     currPasses++;
-    if (row == BoardSize + 1) {
+    if (row == BoardSize + 1)
+    {
         return true; // If all rows are filled, the Sudoku is solved
     }
 
-    if (!isBlank(row, col)) {
+    if (!isBlank(row, col))
+    {
+        // If the cell is already filled, move to the next cell
         int nextRow = row, nextCol = col + 1;
-        if (nextCol > BoardSize) {
+        if (nextCol > BoardSize)
+        {
             nextCol = 1;
             nextRow++;
         }
-        return solveHelper(nextRow, nextCol); // Skip already filled cells
+        return solveHelper(nextRow, nextCol);
     }
 
-    for (int num = MinValue; num <= MaxValue; num++) {
+    // Try placing numbers from 1 to 9 in the current empty cell
+    for (int num = MinValue; num <= MaxValue; num++)
+    {
         if (getCell(row, num, confRow) == 0 &&
             getCell(col, num, confCol) == 0 &&
-            getCell(squareNumber(row, col), num, confSq) == 0) {
-            // If placing 'num' in (row, col) doesn't conflict with rows, columns, or squares
-            updateCell(row, col, num);
+            getCell(squareNumber(row, col), num, confSq) == 0)
+        {
+            updateCell(row, col, num);     // Update conflicts
+            setCell(row, col, num, value); // Set the cell value
 
             int nextRow = row, nextCol = col + 1;
-            if (nextCol > BoardSize) {
+            if (nextCol > BoardSize)
+            {
                 nextCol = 1;
                 nextRow++;
             }
 
-            if (solveHelper(nextRow, nextCol)) {
-                return true; // If Sudoku is solved with the current placement
+            if (solveHelper(nextRow, nextCol))
+            {
+                return true;
             }
 
             // Backtrack if the current placement doesn't lead to a solution
-            clearCell(row, col);
+            clearCell(row, col); // Clear the cell value and conflicts
         }
     }
 
-    return false; // If no number can be placed in (row, col) to solve Sudoku
+    return false;
 }
 
 bool board::solve()
@@ -337,6 +352,7 @@ bool board::solve()
     return solve;
 }
 
+// calculates the average recursive calls
 void board::calculateAvgCalls()
 {
     int numCalls = 0;
@@ -374,10 +390,9 @@ int main()
             b1.print();
             cout << "The number of recursive calls were " << b1.currPasses << "." << endl;
             b1.clear();
-            cout<<endl;
+            cout << endl;
         }
         b1.calculateAvgCalls();
-        
     }
     catch (indexRangeError &ex)
     {
