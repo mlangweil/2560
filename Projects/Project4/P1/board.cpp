@@ -31,6 +31,7 @@ public:
     void printConf();
     void printMatrix(matrix<ValueType> &);
     void checkConflicts();
+    bool isSolved();
 
 private:
     matrix<ValueType> value;
@@ -104,7 +105,6 @@ void board::initialize(ifstream &fin)
 
 void board::checkConflicts()
 {
-    // Initialize variables
     int index = 0, square = 0;
     for (int i = 1; i <= BoardSize; i++)
     {
@@ -112,11 +112,8 @@ void board::checkConflicts()
         {
             if (i >= 1 && i <= BoardSize && j >= 1 && j <= BoardSize)
             {
-                // Return the value in the cell
                 index = getCell(i, j, value);
-                // Return what square the current index is in
                 square = squareNumber(i, j);
-                // If the cell isn't blank, update the conflict vectors
                 if (index != Blank)
                 {
                     setCell(i, index, true, confRow);
@@ -131,8 +128,6 @@ void board::checkConflicts()
         }
     }
 }
-
-
 
 ostream &operator<<(ostream &ostr, vector<int> &v)
 {
@@ -228,6 +223,35 @@ void board::printMatrix(matrix<ValueType> &confMatrix)
         }
         cout << "]" << endl;
     }
+}
+
+bool board::isSolved()
+{
+    int index = 0, square = 0;
+    for (int i = 1; i <= BoardSize; i++)
+    {
+        for (int j = 1; j <= BoardSize; j++)
+        {
+            if (i >= 1 && i <= BoardSize && j >= 1 && j <= BoardSize)
+            {
+                index = getCell(i, j, value);
+                square = squareNumber(i, j);
+                if (index == Blank)
+                {
+                    return false;
+                }
+                if (!confRow[i][index] || !confCol[j][index] || !confSq[square][index])
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                throw rangeError("bad value in GetCell");
+            }
+        }
+    }
+    return true;
 }
 
 int main()
